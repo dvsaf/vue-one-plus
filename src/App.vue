@@ -2,18 +2,21 @@
   <div id="app">
 <!--    <img alt="Vue logo" src="./assets/logo.png">-->
 <!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
-    <NewPage/>
+<!--    <NewPage/>-->
+    <NewPageBS/>
   </div>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import NewPage from "@/components/NewPage";
+// import NewPage from "@/components/NewPage";
+import NewPageBS from "@/components/NewPageBS";
 
 export default {
   name: 'App',
   components: {
-    NewPage//,
+    NewPageBS//,
+    // NewPage,
     // HelloWorld
   }
 }
