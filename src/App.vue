@@ -1,23 +1,16 @@
 <template>
-  <div id="app">
-<!--    <img alt="Vue logo" src="./assets/logo.png">-->
-<!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
-<!--    <NewPage/>-->
-    <NewPageBS/>
+  <div id="app" class="container">
+    <UserManagement/>
   </div>
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
-// import NewPage from "@/components/NewPage";
-import NewPageBS from "@/components/NewPageBS";
+import UserManagement from "@/components/UserManagement";
 
 export default {
   name: 'App',
   components: {
-    NewPageBS//,
-    // NewPage,
-    // HelloWorld
+    UserManagement
   }
 }
 </script>
