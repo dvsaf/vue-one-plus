@@ -41,7 +41,7 @@
       </div>
     </div>
     <div class="col-9">
-      hello
+      <b-table striped hover :items="users"></b-table>
     </div>
   </div>
 </template>
@@ -75,7 +75,12 @@ export default {
       activeFilters: [],
       selectedCollege: null,
       colleges: [],
-      users: []
+      users: [
+        { id: 0, login: "god", name: "god", roles: "god" },
+        { id: 1, login: "root", name: "root", roles: "root" },
+        { id: 2, login: "operator", name: "operator", roles: "operator" },
+        { id: 3, login: "user", name: "user", roles: "user" }
+      ]
     }
   },
 
