@@ -7,10 +7,10 @@
           <div v-if="filters.login"><strong>Логин: </strong>{{ filters.login }}</div>
           <div v-if="filters.lastName"><strong>Фамилия: </strong>{{ filters.lastName }}</div>
           <div v-if="filters.email"><strong>Email: </strong>{{ filters.email }}</div>
-          <div v-if="filters.college"><strong>ПОО: </strong>{{ filters.college.short_name }}</div>
+          <div v-if="filters.college"><strong>ПОО: </strong>{{ filters.college.shortName }}</div>
           <div class="row">
             <b-button class="col ml-3 mr-1" @click="clearFilters">Очистить</b-button>
-            <b-button class="col ml-1 mr-3">Найти</b-button>
+            <b-button class="col ml-1 mr-3" @click="findFiltered">Найти</b-button>
           </div>
         </div>
       </div>
@@ -34,14 +34,14 @@
             <b-form-input id="college" class="form-control" list="colleges" v-model="selectedCollege"
                           @change="changeCollege"></b-form-input>
             <datalist id="colleges">
-              <option v-for="college in colleges" v-bind:key="college.id">{{ college.short_name }}</option>
+              <option v-for="college in colleges" v-bind:key="college.id">{{ college.shortName }}</option>
             </datalist>
           </div>
         </div>
       </div>
     </div>
     <div class="col-9">
-      <b-table id="users" striped hover :items="users" :fields="userFields" :primary-key="id" :per-page="perPage"
+      <b-table id="users" striped hover :items="userProvider" :fields="userFields" :primary-key="id" :per-page="perPage"
                :current-page="currentPage">
         <template v-slot:cell(actions)="data">
           <b-button class="btn btn-sm">{{ data.item.id }}</b-button>
@@ -51,19 +51,61 @@
         </template>
       </b-table>
       <p class="mt-3">Страница: {{ currentPage }}</p>
-      <b-pagination v-model="currentPage" :total-rows="rows" :per-page="perPage" aria-controls="users"></b-pagination>
+      <b-pagination v-model="currentPage" :total-rows="rows" :per-page="perPage" aria-controls="users"
+                    align="center"></b-pagination>
     </div>
   </div>
 </template>
 
 <script>
 const collegesUrl = "http://localhost:9081/colleges";
+const usersUrl = "http://localhost:9081/users-short";
+const usersCountUrl = "http://localhost:9081/users-count";
 
 function fetchColleges(self) {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", collegesUrl);
   xhr.onload = function () {
     self.colleges = JSON.parse(xhr.responseText);
+  };
+  xhr.send();
+}
+
+// function fetchUsers(self) {
+//   const xhr = new XMLHttpRequest();
+//   xhr.open("GET", usersUrl);
+//   xhr.onload = function () {
+//     self.users = JSON.parse(xhr.responseText);
+//   };
+//   xhr.send();
+// }
+
+function fetchUsersCount(self, filters) {
+  const xhr = new XMLHttpRequest();
+  const url = usersCountUrl + "?" + getFiltersUrl(filters); // todo: заменить на аггрегацию
+  xhr.open("GET", url);
+  xhr.onload = function () {
+    self.rows = JSON.parse(xhr.responseText);
+    console.log("rows = " + self.rows);
+  };
+  xhr.send();
+}
+
+function getFiltersUrl(filters) {
+  return (filters.login == null ? "" : "&login=" + filters.login)
+      + (filters.lastName == null ? "" : "&last-name=" + filters.lastName)
+      + (filters.email == null ? "" : "&email=" + filters.email)
+      + (filters.college == null ? "" : "&college=" + filters.college.id);
+}
+
+function fetchUsers(currentPage, perPage, filters, callback) {
+  const xhr = new XMLHttpRequest();
+  const url = usersUrl + '?page=' + currentPage + '&size=' + perPage
+      + getFiltersUrl(filters);
+  xhr.open("GET", url);
+  xhr.onload = function () {
+    let users = JSON.parse(xhr.responseText);
+    callback(users);
   };
   xhr.send();
 }
@@ -86,41 +128,26 @@ export default {
       colleges: [],
       userFields: [
         {key: 'login', label: 'Логин', sortable: true},
-        {key: 'name', label: 'ФИО', sortable: true},
+        {key: 'fullName', label: 'ФИО', sortable: true},
         {key: 'roles', label: 'Роли', sortable: false},
         {key: 'actions', label: '', sortable: false}
       ],
-      users: [
-        {id: 0, login: 'god', name: 'god', roles: 'god'},
-        {id: 1, login: 'root', name: 'root', roles: 'root'},
-        {id: 2, login: 'operator', name: 'operator', roles: 'operator'},
-        {id: 3, login: 'user', name: 'user', roles: 'user'},
-        {id: 10, login: 'god', name: 'god', roles: 'god'},
-        {id: 11, login: 'root', name: 'root', roles: 'root'},
-        {id: 12, login: 'operator', name: 'operator', roles: 'operator'},
-        {id: 13, login: 'user', name: 'user', roles: 'user'},
-        {id: 20, login: 'god', name: 'god', roles: 'god'},
-        {id: 21, login: 'root', name: 'root', roles: 'root'},
-        {id: 22, login: 'operator', name: 'operator', roles: 'operator'},
-        {id: 23, login: 'user', name: 'user', roles: 'user'},
-        {id: 30, login: 'god', name: 'god', roles: 'god'},
-        {id: 31, login: 'root', name: 'root', roles: 'root'},
-        {id: 32, login: 'operator', name: 'operator', roles: 'operator'},
-        {id: 33, login: 'user', name: 'user', roles: 'user'}
-      ],
+      users: [],
+      rows: null,
       perPage: 7,
       currentPage: 1
     }
   },
 
-  computed: {
-    rows() {
-      return this.users.length
-    }
-  },
+  // computed: {
+  //   rows() {
+  //     return this.users.length
+  //   }
+  // },
 
   created() {
     fetchColleges(this);
+    fetchUsersCount(this, this.filters);
   },
 
   methods: {
@@ -136,8 +163,20 @@ export default {
 
     changeCollege(value) {
       this.filters.college = this.colleges.find((item) => {
-        return item.short_name === value;
+        return item.shortName === value;
       });
+    },
+
+    userProvider(ctx, callback) {
+      fetchUsers(ctx.currentPage, ctx.perPage, this.filters, callback);
+
+      // Must return null or undefined to signal b-table that callback is being used
+      return null;
+    },
+
+    findFiltered() {
+      fetchUsersCount(this, this.filters);
+      this.currentPage = 1;
     }
   }
 }
