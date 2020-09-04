@@ -41,7 +41,7 @@
       </div>
     </div>
     <div class="col-9">
-      <b-table id="users" striped hover :items="userProvider" :fields="userFields" :primary-key="id" :per-page="perPage"
+      <b-table ref="usersTable" id="users" striped hover :items="userProvider" :fields="userFields" primary-key="id" :per-page="perPage"
                :current-page="currentPage">
         <template v-slot:cell(actions)="data">
           <b-button class="btn btn-sm">{{ data.item.id }}</b-button>
@@ -59,7 +59,7 @@
 
 <script>
 const collegesUrl = "http://localhost:9081/colleges";
-const usersUrl = "http://localhost:9081/users-short";
+const usersShortUrl = "http://localhost:9081/users-short";
 const usersCountUrl = "http://localhost:9081/users-count";
 
 function fetchColleges(self) {
@@ -70,15 +70,6 @@ function fetchColleges(self) {
   };
   xhr.send();
 }
-
-// function fetchUsers(self) {
-//   const xhr = new XMLHttpRequest();
-//   xhr.open("GET", usersUrl);
-//   xhr.onload = function () {
-//     self.users = JSON.parse(xhr.responseText);
-//   };
-//   xhr.send();
-// }
 
 function fetchUsersCount(self, filters) {
   const xhr = new XMLHttpRequest();
@@ -100,7 +91,7 @@ function getFiltersUrl(filters) {
 
 function fetchUsers(currentPage, perPage, filters, callback) {
   const xhr = new XMLHttpRequest();
-  const url = usersUrl + '?page=' + currentPage + '&size=' + perPage
+  const url = usersShortUrl + '?page=' + currentPage + '&size=' + perPage
       + getFiltersUrl(filters);
   xhr.open("GET", url);
   xhr.onload = function () {
@@ -132,18 +123,11 @@ export default {
         {key: 'roles', label: 'Роли', sortable: false},
         {key: 'actions', label: '', sortable: false}
       ],
-      users: [],
-      rows: null,
+      rows: 0,
       perPage: 7,
       currentPage: 1
     }
   },
-
-  // computed: {
-  //   rows() {
-  //     return this.users.length
-  //   }
-  // },
 
   created() {
     fetchColleges(this);
@@ -176,7 +160,7 @@ export default {
 
     findFiltered() {
       fetchUsersCount(this, this.filters);
-      this.currentPage = 1;
+      this.$refs.usersTable.refresh();
     }
   }
 }
