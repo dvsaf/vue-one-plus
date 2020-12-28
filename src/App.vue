@@ -1,16 +1,22 @@
 <template>
   <div id="app" class="container">
+    <Header/>
     <UserManagement/>
+    <Footer/>
   </div>
 </template>
 
 <script>
 import UserManagement from "@/components/UserManagement";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default {
   name: 'App',
   components: {
-    UserManagement
+    UserManagement,
+    Header,
+    Footer
   }
 }
 </script>
