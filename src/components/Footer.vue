@@ -1,5 +1,8 @@
 <template>
-  <div>© {{currentYear}} Дмитрий Сафронов</div>
+  <div>
+<!--    © {{currentYear}}-->
+<!--    Дмитрий Сафронов-->
+  </div>
 </template>
 
 <script>
